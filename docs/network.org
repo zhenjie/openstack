@@ -1,0 +1,8 @@
+* Official documents
+  - http://docs.openstack.org/havana/install-guide/install/zypper/content/install-neutron.configure-networks.html
+* Neutron ML2 plugin 
+  - http://developer.rackspace.com/blog/neutron-networking-l3-agent.html
+  - https://wiki.openstack.org/wiki/Neutron/ML2
+* Misc
+  - http://www.slideshare.net/nearyd/neutron-open-vswt
+  
