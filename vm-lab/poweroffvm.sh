@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 CONTROLLER="Control_Node"
 NETWORK="Network_Node"
