@@ -7,8 +7,8 @@ All about openstack
 
 
 
-Use Virtual Box to create testing environment
-=============================================
+VirtualBox: testing environment
+===============================
 
 1. createvm.sh
    
