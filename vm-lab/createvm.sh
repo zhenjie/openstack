@@ -30,7 +30,7 @@ for node in ${nodes[*]}; do
         # are u sure?
         echo "About to delete node: $node"
         echo -n "Do you want to continue [y/N]? "
-        read command
+        read -n1 -s command
         if [[ $command == "y" || $command == "Y" ]]; then
             vboxmanage unregistervm "$CONTROLLER" --delete 
         fi
