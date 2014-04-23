@@ -1,6 +1,14 @@
 #!/bin/sh
 
+# debug
 set -x 
+
+# if we have wireless connection, use it; otherwise use eth0
+if [ `vboxmanage list bridgedifs | grep -e "Name: *wlan0" | wc -l` = "1" ]; then
+    BRIDGE_INTERFACE=wlan0
+else
+    BRIDGE_INTERFACE=eth0 
+fi
 
 IMAGE="$HOME/Workspace/OpenStack/ubuntu-12.04.4-server-amd64.iso"
 
@@ -68,8 +76,8 @@ fi
 
 ### create Controller ###
 vboxmanage createvm --name "$CONTROLLER" --register
-vboxmanage modifyvm "$CONTROLLER" --memory 1024 --acpi on --boot1 dvd
-vboxmanage modifyvm "$CONTROLLER" --nic1 bridged --bridgeadapter1 eth0
+vboxmanage modifyvm "$CONTROLLER" --memory 2048 --acpi on --boot1 dvd
+vboxmanage modifyvm "$CONTROLLER" --nic1 bridged --bridgeadapter1 $BRIDGE_INTERFACE
 vboxmanage modifyvm "$CONTROLLER" --nic2 hostonly --hostonlyadapter2 vboxnet0
 vboxmanage modifyvm "$CONTROLLER" --ostype Ubuntu_64
 
@@ -92,8 +100,8 @@ vboxmanage storageattach "$CONTROLLER" --storagectl "SATA Controller" --port 0 -
 
 ### create Computer ###
 vboxmanage createvm --name "$COMPUTER" --register
-vboxmanage modifyvm "$COMPUTER" --memory 1024 --acpi on --boot1 dvd
-vboxmanage modifyvm "$COMPUTER" --nic1 bridged --bridgeadapter1 eth0
+vboxmanage modifyvm "$COMPUTER" --memory 2048 --acpi on --boot1 dvd
+vboxmanage modifyvm "$COMPUTER" --nic1 bridged --bridgeadapter1 $BRIDGE_INTERFACE
 vboxmanage modifyvm "$COMPUTER" --nic2 hostonly --hostonlyadapter2 vboxnet0
 vboxmanage modifyvm "$COMPUTER" --nic3 hostonly --hostonlyadapter3 vboxnet1 
 vboxmanage modifyvm "$COMPUTER" --ostype Ubuntu_64
@@ -117,7 +125,7 @@ vboxmanage storageattach "$COMPUTER" --storagectl "SATA Controller" --port 0 --d
 ### create Network ###
 vboxmanage createvm --name "$NETWORK" --register
 vboxmanage modifyvm "$NETWORK" --memory 1024 --acpi on --boot1 dvd
-vboxmanage modifyvm "$NETWORK" --nic1 bridged --bridgeadapter1 eth0
+vboxmanage modifyvm "$NETWORK" --nic1 bridged --bridgeadapter1 $BRIDGE_INTERFACE
 vboxmanage modifyvm "$NETWORK" --nic2 hostonly --hostonlyadapter2 vboxnet0
 vboxmanage modifyvm "$NETWORK" --nic3 hostonly --hostonlyadapter3 vboxnet1 
 vboxmanage modifyvm "$NETWORK" --ostype Ubuntu_64
@@ -141,7 +149,7 @@ vboxmanage storageattach "$NETWORK" --storagectl "SATA Controller" --port 0 --de
 ### create Storage ###
 vboxmanage createvm --name "$STORAGE" --register
 vboxmanage modifyvm "$STORAGE" --memory 1024 --acpi on --boot1 dvd
-vboxmanage modifyvm "$STORAGE" --nic1 bridged --bridgeadapter1 eth0
+vboxmanage modifyvm "$STORAGE" --nic1 bridged --bridgeadapter1 $BRIDGE_INTERFACE
 vboxmanage modifyvm "$STORAGE" --nic2 hostonly --hostonlyadapter2 vboxnet0
 vboxmanage modifyvm "$STORAGE" --nic3 hostonly --hostonlyadapter3 vboxnet1 
 vboxmanage modifyvm "$STORAGE" --ostype Ubuntu_64
@@ -151,12 +159,10 @@ vboxmanage storagectl "$STORAGE" --name "IDE Controller" --add ide
 vboxmanage storageattach "$STORAGE" --storagectl "IDE Controller" --port 0 --device 0 --type dvddrive --medium "$IMAGE"
 
 # add hdd
-vboxmanage createhd --filename "$VM_DIR/$STORAGE.vdi" --size 10240
+vboxmanage createhd --filename "$VM_DIR/$STORAGE-1.vdi" --size 20480
 vboxmanage storagectl "$STORAGE" --name "SATA Controller" --add sata
-vboxmanage storageattach "$STORAGE" --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium "$VM_DIR/$STORAGE.vdi"
+vboxmanage storageattach "$STORAGE" --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium "$VM_DIR/$STORAGE-1.vdi"
 
-# start to install the system
-# vboxmanage  startvm "$STORAGE" &
+vboxmanage createhd --filename "$VM_DIR/$STORAGE-2.vdi" --size 20480
+vboxmanage storageattach "$STORAGE" --storagectl "SATA Controller" --port 1 --device 0 --type hdd --medium "$VM_DIR/$STORAGE-2.vdi"
 
-# eject dvd
-# vboxmanage modifyvm "$STORAGE" --dvd none
