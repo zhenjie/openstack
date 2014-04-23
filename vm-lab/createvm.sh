@@ -3,11 +3,11 @@
 # debug
 set -x 
 
-# if we have wireless connection, use it; otherwise use eth0
-if [ `vboxmanage list bridgedifs | grep -e "Name: *wlan0" | wc -l` = "1" ]; then
-    BRIDGE_INTERFACE=wlan0
+# if we have wired connection eth0, use it; otherwise use wlan0
+if [ `ip link show eth0 | grep "state UP" | wc -l` = "1" ]; then
+    BRIDGE_INTERFACE=eth0
 else
-    BRIDGE_INTERFACE=eth0 
+    BRIDGE_INTERFACE=wlan0 
 fi
 
 IMAGE="$HOME/Workspace/OpenStack/ubuntu-12.04.4-server-amd64.iso"
